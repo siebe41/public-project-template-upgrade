@@ -15,11 +15,12 @@ I copied this template into a new folder and want to turn it into a real project
 
 ## Step 1 - Ask the minimum
 
-Ask me only these three questions and wait for answers:
+Ask me only these four questions and wait for answers:
 
 1. **Project name** (e.g. "Acme Reporting Pipeline").
 2. **One-liner** - what is this project, in one sentence?
 3. **Goals** - what does "done" look like? 1-3 bullets is fine.
+4. **AI harness** - Claude Code CLI or GitHub Copilot agent mode in VS Code? (Type `claude` or `copilot`.)
 
 Don't ask for slug, destination path, or anything else yet.
 
@@ -28,6 +29,7 @@ Don't ask for slug, destination path, or anything else yet.
 Based on my answers, **propose** the following as a single message and ask me to confirm or edit. Make educated guesses; don't ask me to fill blanks.
 
 - **Slug:** kebab-case of the project name (lowercase, `[a-z0-9-]`, collapsed dashes).
+- **AI harness:** The harness the user stated (no inference — reflect their answer exactly). Note what will and won't be created.
 - **Tech stack:** infer from the one-liner and goals. Lean toward what this template assumes by default: Windows + PowerShell, Azure if cloud is implied, Terraform/OpenTofu for IaC, Python or Node for code, React + Tailwind for UI. State each choice with a one-line rationale. Mark anything genuinely unclear as "TBD - decide in first ADR."
 - **Rooms:** pick the minimum set from `_template/ROOMS.md` that fits. `planning/` is always included. For each pick, give a one-line reason. Don't include rooms "in case."
 - **Deliverables:** what the project produces (one or two items).
@@ -42,7 +44,17 @@ Wait for me to accept or edit before doing anything else.
 Once I confirm the proposal, do all of this in order:
 
 1. **Fill placeholders.** For every `*.template` file in `_template/skeleton/` (recurse into subfolders), substitute placeholders (see table below) and save without the `.template` suffix. Remove room folders I didn't pick. Update `{{ROOMS_TREE}}`, `{{ROUTING_ROWS}}`, and `{{ROOMS_TABLE}}` to only include kept rooms. Rename `workspace.code-workspace` to `<slug>.code-workspace`.
-2. **Promote skeleton to repo root.** Move every filled file/folder from `_template/skeleton/` up to the repo root, overwriting any same-named files (the existing root `CLAUDE.md` and `.gitignore` get replaced this way - that is intentional). Leave `runbooks/`, `reference/`, `.claude/`, and `.gitattributes` untouched - they survive as project content. Then append stack-specific entries to the new `.gitignore` below the `=== STACK-SPECIFIC ===` marker (PowerShell module paths, `.terraform/`, `node_modules/`, `__pycache__/`, etc., based on the chosen stack). Don't regenerate `.gitignore` from scratch - only append below the marker. Finally, delete `_template/` entirely.
+
+   **Harness-scoped files — fill only what applies:**
+   - **Claude harness:** fill and promote `_template/skeleton/CLAUDE.md.template` → `CLAUDE.md` at repo root. Skip `_template/skeleton/.github/copilot-instructions.md.template` and do not promote `.github/instructions/` or `.github/prompts/`.
+   - **Copilot harness:** fill and promote `_template/skeleton/.github/copilot-instructions.md.template` → `.github/copilot-instructions.md`. Promote `.github/instructions/` and `.github/prompts/` as-is (no placeholder substitution needed in those files). Skip `_template/skeleton/CLAUDE.md.template` — do not create `CLAUDE.md`.
+
+2. **Promote skeleton to repo root.** Move every filled file/folder from `_template/skeleton/` up to the repo root, overwriting any same-named files (the existing root `CLAUDE.md` and `.gitignore` get replaced this way - that is intentional). Leave `runbooks/`, `reference/`, and `.gitattributes` untouched - they survive as project content. Then append stack-specific entries to the new `.gitignore` below the `=== STACK-SPECIFIC ===` marker (PowerShell module paths, `.terraform/`, `node_modules/`, `__pycache__/`, etc., based on the chosen stack). Don't regenerate `.gitignore` from scratch - only append below the marker. Finally, delete `_template/` entirely.
+
+   **Harness-scoped actions after promotion:**
+   - **Claude harness:** leave `.claude/` untouched — agents, skills, and settings survive as project content. `.vscode/settings.json` is promoted from skeleton (kept for optional Copilot use).
+   - **Copilot harness:** delete `.claude/` — it is not used by this harness. `.github/copilot-instructions.md`, `.github/instructions/`, and `.github/prompts/` are the AI config. `.vscode/settings.json` is promoted from skeleton for the Copilot terminal allow-list.
+
 3. **Verify tooling.** Run `git --version` and `pwsh --version` plus stack-dependent checks (`az --version`, `terraform --version` / `tofu --version`, `node --version`, `python --version`). Report anything missing - don't silently continue.
 4. **Print a checklist.** Show what was created, what was skipped, and the next 3 actions. End with a copy-pastable command:
    ```powershell
@@ -128,7 +140,7 @@ Full markdown table (header + separator + rows) under the `## Rooms in this proj
 
 ## Hard rules
 
-- Don't add features, scripts, or code beyond the scaffold. Only `CLAUDE.md`, `README.md`, room `CONTEXT.md` files, `.code-workspace`, and `.gitignore` plus the folder structure.
+- Don't add features, scripts, or code beyond the scaffold. Only the harness instructions file (`CLAUDE.md` or `.github/copilot-instructions.md`), `README.md`, room `CONTEXT.md` files, `.code-workspace`, and `.gitignore` plus the folder structure.
 - Don't invent placeholders. If you need one, ask first.
 - Don't run `git init` or any git commands. I'll do that after I review.
-- The starter `runbooks/`, `reference/`, and `.claude/` folders stay - they're project content now.
+- The starter `runbooks/` and `reference/` folders stay - they're project content now. `.claude/` stays for Claude harness; it is deleted for Copilot harness.
