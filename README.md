@@ -117,6 +117,54 @@ Use this when you already have a working repo and want to add the template's str
 
 > Nothing is overwritten without showing you the diff first. The upgrade flow is additive only — it never deletes files.
 
+## What UPGRADE does (and doesn't) do
+
+UPGRADE is additive only — it never deletes or overwrites files without showing you the diff first. After it finishes, you'll have:
+
+- **`.claude/agents/`** — `powershell-reviewer.md` and `terraform-reviewer.md` added if missing
+- **`.claude/skills/`** — `planning-docs/` skill directory added if missing
+- **`.claude/settings.json`** — created with the baseline permission allow/deny list, or missing entries merged into an existing file
+- **`.gitignore`** — `.claude/settings.local.json` appended if not already listed
+- **`planning/templates/`** — four planning templates copied in if `planning/` exists but `planning/templates/` doesn't
+- **`<room>/CONTEXT.md`** — a standard CONTEXT.md created for any top-level room folder that doesn't already have one
+- **`runbooks/CONTEXT.md`** — created if missing
+- **`CLAUDE.md`** — missing sections (Skills table, Subagents table, Naming, Rules) appended; existing content untouched
+
+UPGRADE does **not** run `git init` or push, create new room folders, add code or scripts, or invent placeholder values.
+
+## Manual upgrade path
+
+<details>
+<summary>If you'd rather not use AI, expand for the manual steps.</summary>
+
+1. Copy `_template/`, `.claude/agents/`, `.claude/skills/`, and `.claude/settings.json` from a clone of this template repo into your project (see the copy commands in step 1 above).
+
+2. **Agents** — copy any missing files from `.claude/agents/` into your project's `.claude/agents/`:
+   - `powershell-reviewer.md`
+   - `terraform-reviewer.md`
+
+3. **Skills** — copy the missing directory from `.claude/skills/` into your project's `.claude/skills/`:
+   - `planning-docs/SKILL.md`
+   If your project doesn't have a `_template/` folder, update the links in the **Source files** section of `SKILL.md` to point to `planning/templates/` instead of `_template/skeleton/planning/templates/`.
+
+4. **Settings** — if `.claude/settings.json` doesn't exist, create it with the baseline JSON from `_template/UPGRADE-PROMPT.md` (search for the `permissions` block). If it does exist, merge any missing `allow` and `deny` entries manually.
+
+5. **`.gitignore`** — append `.claude/settings.local.json` if it isn't listed. Place it below the `=== STACK-SPECIFIC ===` marker or at the end of the file.
+
+6. **Planning templates** — if your project has a `planning/` folder but no `planning/templates/`, copy these four files from `_template/skeleton/planning/templates/`:
+   - `adr-template.md`
+   - `spec-template.md`
+   - `adr-example.md`
+   - `spec-example.md`
+
+7. **CONTEXT.md files** — for any top-level folder that is missing a `CONTEXT.md`, create one using the standard template in `_template/UPGRADE-PROMPT.md` (search for `{{ROOM_NAME}}`). Use the richer planning-specific template for `planning/`, and the runbooks-specific template for `runbooks/`.
+
+8. **CLAUDE.md** — if missing, create a minimal one using `_template/skeleton/CLAUDE.md.template` as a guide. If present, append any missing sections (Skills table, Subagents table, Naming, Rules) from the templates in `_template/UPGRADE-PROMPT.md`.
+
+9. Commit: `git add . && git commit -m "Add AI instructions and skills from project template" && git push`.
+
+</details>
+
 ## Folder map (before INIT)
 
 | Path | Purpose | Survives INIT? |
