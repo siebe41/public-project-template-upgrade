@@ -7,6 +7,8 @@ After copying this repo to a new folder, ask your agent to follow this file. Eit
 
 Works in Claude Code CLI or GitHub Copilot agent mode - both read local files, so there's no need to paste the contents. The agent will fill placeholders, prune rooms you don't need, promote the skeleton to the repo root, and delete `_template/`. Result: a standalone project ready for `git init` and a new remote.
 
+> **Upgrading an existing project instead?** Use [`_template/UPGRADE-PROMPT.md`](UPGRADE-PROMPT.md) — it adds the template's agents, skills, and structure to a repo that already has code, without overwriting anything.
+
 ---
 
 I copied this template into a new folder and want to turn it into a real project workspace. Run the flow below.
