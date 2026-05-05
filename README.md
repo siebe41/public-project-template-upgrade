@@ -89,10 +89,10 @@ Use this when you already have a working repo and want to add the template's str
 1. **Copy the template files you need into your existing repo.** The minimum set:
    ```powershell
    # From a clone of this template repo, copy these into your project:
-   Copy-Item "_template"         "<your-project>\_template" -Recurse
-   Copy-Item ".claude\agents"    "<your-project>\.claude\agents" -Recurse -Force
-   Copy-Item ".claude\skills"    "<your-project>\.claude\skills" -Recurse -Force
-   Copy-Item ".claude\settings.json" "<your-project>\.claude\settings.json"
+   Copy-Item "_template"              "<your-project>\_template"           -Recurse
+   Copy-Item ".claude\agents"         "<your-project>\.claude\agents"      -Recurse -Force
+   Copy-Item ".claude\skills"         "<your-project>\.claude\skills"      -Recurse -Force
+   Copy-Item ".claude\settings.json"  "<your-project>\.claude\settings.json"
    ```
    Skip any file that already exists in the target and that you don't want to overwrite — the upgrade agent will merge rather than replace.
 

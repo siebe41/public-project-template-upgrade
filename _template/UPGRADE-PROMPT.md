@@ -66,7 +66,7 @@ Copy the missing skill directory into `.claude/skills/`:
 
 - `planning-docs/SKILL.md` — content defined in `.claude/skills/planning-docs/SKILL.md` (read it from this repo)
 
-The `planning-docs` skill references template files. If this project does not have `_template/` (i.e. it was never a fresh copy of this template), update the **Source files** links at the bottom of `SKILL.md` to point to `planning/templates/` instead of `_template/skeleton/planning/templates/`.
+The `planning-docs` skill references template files. If this project does not have `_template/` (i.e. it was never a fresh copy of this template), update the links in the **Source files** section at the bottom of `SKILL.md` — the lines that look like `[_template/skeleton/planning/templates/adr-template.md](../../../_template/skeleton/planning/templates/adr-template.md)` — to point to `planning/templates/` instead (e.g. `[planning/templates/adr-template.md](../../../planning/templates/adr-template.md)`).
 
 ### 3b — AI harness: settings
 
@@ -107,7 +107,7 @@ If `.claude/settings.json` is missing, create it with the full baseline content:
 
 If `.claude/settings.json` already exists, merge only the missing `allow` and `deny` entries into the existing JSON — do not remove any entries that are already there.
 
-Ensure `.claude/settings.local.json` is listed in `.gitignore`. If it's not, append the line `# Claude Code CLI local state\n.claude/settings.local.json` below the existing content (or below the `=== STACK-SPECIFIC ===` marker if that marker is present).
+Ensure `.claude/settings.local.json` is listed in `.gitignore`. If it's not, append two lines: first `# Claude Code CLI local state` and then `.claude/settings.local.json`. Place them below the `=== STACK-SPECIFIC ===` marker if that marker is present, otherwise at the end of the file.
 
 ### 3c — Planning templates
 
@@ -181,7 +181,7 @@ Ask me for:
 2. One-liner
 3. Owner
 
-Then generate a minimal `CLAUDE.md` using the template structure. Populate only the sections where you have real information. Use `_TBD_` for anything you can't infer. Do not invent commands, rooms, or avoid-list items — leave those sections as examples for the user to fill in.
+Then generate a minimal `CLAUDE.md` using the structure from `_template/skeleton/CLAUDE.md.template` (read it from this repo if it exists; otherwise use the section headings listed in Step 3e under "missing sections" below as a baseline). Populate only the sections where you have real information. Use `_TBD_` for anything you can't infer. Do not invent commands, rooms, or avoid-list items — leave those sections as examples for the user to fill in.
 
 **If `CLAUDE.md` is present but missing sections:**
 
