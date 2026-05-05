@@ -3,6 +3,8 @@
 ## What this is
 A standalone project starter. To begin a new project: copy this whole repo to a new folder, ask the agent to read `_template/INIT-PROMPT.md` and run it, then push to a new git remote.
 
+To bring an **existing project** up to the template standard: copy the `_template/` folder and `.claude/` contents into the existing repo, then ask the agent to read `_template/UPGRADE-PROMPT.md` and run the upgrade flow.
+
 If you are reading this in a freshly copied template (before INIT runs), help the user follow `_template/INIT-PROMPT.md`. After INIT runs, the filled `_template/skeleton/CLAUDE.md.template` overwrites this file.
 
 ## Folder structure
@@ -45,3 +47,6 @@ Pattern: `description_status.extension`. Markdown and HTML use `kebab-case`.
 
 ## Bootstrapping a new project
 See [`README.md`](README.md) for the quick-start steps. Short version: copy the repo, remove `.git`, ask the agent to follow `_template/INIT-PROMPT.md`, then `git init` and push.
+
+## Upgrading an existing project
+Copy the `_template/` folder and `.claude/` contents into the existing repo, then ask the agent to follow `_template/UPGRADE-PROMPT.md`. The upgrade flow is additive — it only adds missing agents, skills, settings, and CONTEXT.md files.

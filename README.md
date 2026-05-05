@@ -8,7 +8,16 @@ A standalone starter for a single project. Copy this repo to a new folder, point
 
 One repo per project. Everything the project needs - planning, rooms, runbooks, reference, skills, agents - lives in the same repo. No multi-root, no sibling-folder setup, no shared knowledge base to mount. If you build a skill or agent worth reusing, copy it into the next project by hand when you start it.
 
-## Quick start (AI-assisted)
+## Two ways to use this template
+
+| Goal | Flow |
+|------|------|
+| Start a brand-new project | Follow **Quick start** below — copy the template, run INIT |
+| Bring an existing project up to the standard | Follow **Upgrade an existing project** below — drop the template files in, run UPGRADE |
+
+---
+
+## Quick start — new project (AI-assisted)
 
 1. **Copy this repo to a new folder.** Easiest:
    ```powershell
@@ -57,20 +66,6 @@ INIT scaffolds files only - it does **not** run `git init`, install dependencies
 
 </details>
 
-## Folder map (before INIT)
-
-| Path | Purpose | Survives INIT? |
-|------|---------|----------------|
-| `CLAUDE.md` | Template-mode project instructions | replaced |
-| `README.md` | This file | replaced |
-| `_template/INIT-PROMPT.md` | Bootstrap prompt the agent reads | deleted |
-| `_template/ROOMS.md` | Catalog of room archetypes | deleted |
-| `_template/skeleton/` | Project skeleton (templated) | promoted to root |
-| `runbooks/` | Starter operational procedures | kept |
-| `reference/` | Starter examples and vendor docs | kept |
-| `.claude/` | Starter skills, subagents, and permission allowlist (read by both Claude Code CLI and Copilot) | kept |
-| `.gitattributes` | Line-ending rules | kept |
-
 ## Rules while you're still in template mode
 
 - **Don't `git add` / `commit` / `push` to this repo.** The template maintainer pushes template changes manually. Once you've copied it to a new project folder and removed `.git`, normal git rules apply.
@@ -86,6 +81,56 @@ These rules carry through INIT into the project's own `CLAUDE.md` and room `CONT
 - **File naming:** `description_status.extension`. Code uses language idiom (`Verb-Noun.ps1`, `snake_case.py`). Docs use `kebab-case`.
 - **Scripts and IaC are parameters-only** - no hard-coded creds, IDs, or paths.
 - **Customization files (skills, agents) go in `.claude/`.** Both Claude Code CLI and GitHub Copilot agent mode read from `.claude/agents/` and `.claude/skills/`. Avoid splitting the same project across `.github/` and `.claude/` unless you need a Copilot-only feature (e.g. agent hooks in `.agent.md` frontmatter).
+
+## Upgrade an existing project (AI-assisted)
+
+Use this when you already have a working repo and want to add the template's structured AI instructions, skills, and agents — without touching your code or overwriting your existing `CLAUDE.md`.
+
+1. **Copy the template files you need into your existing repo.** The minimum set:
+   ```powershell
+   # From a clone of this template repo, copy these into your project:
+   Copy-Item "_template"         "<your-project>\_template" -Recurse
+   Copy-Item ".claude\agents"    "<your-project>\.claude\agents" -Recurse -Force
+   Copy-Item ".claude\skills"    "<your-project>\.claude\skills" -Recurse -Force
+   Copy-Item ".claude\settings.json" "<your-project>\.claude\settings.json"
+   ```
+   Skip any file that already exists in the target and that you don't want to overwrite — the upgrade agent will merge rather than replace.
+
+2. **Open your project in VS Code.**
+
+3. **Point the agent at the upgrade prompt:**
+   ```
+   Read _template/UPGRADE-PROMPT.md and run the upgrade flow.
+   ```
+   The agent will:
+   - inventory what you already have (CLAUDE.md, rooms, `.claude/` files)
+   - show a gap table and proposed changes
+   - wait for your approval before touching anything
+   - add only what's missing (agents, skills, settings, CONTEXT.md files, planning templates)
+
+4. **Review and commit:**
+   ```powershell
+   git add .
+   git commit -m "Add AI instructions and skills from project template"
+   git push
+   ```
+
+> Nothing is overwritten without showing you the diff first. The upgrade flow is additive only — it never deletes files.
+
+## Folder map (before INIT)
+
+| Path | Purpose | Survives INIT? |
+|------|---------|----------------|
+| `CLAUDE.md` | Template-mode project instructions | replaced |
+| `README.md` | This file | replaced |
+| `_template/INIT-PROMPT.md` | Bootstrap prompt for new projects | deleted |
+| `_template/UPGRADE-PROMPT.md` | Upgrade prompt for existing projects | deleted |
+| `_template/ROOMS.md` | Catalog of room archetypes | deleted |
+| `_template/skeleton/` | Project skeleton (templated) | promoted to root |
+| `runbooks/` | Starter operational procedures | kept |
+| `reference/` | Starter examples and vendor docs | kept |
+| `.claude/` | Starter skills, subagents, and permission allowlist (read by both Claude Code CLI and Copilot) | kept |
+| `.gitattributes` | Line-ending rules | kept |
 
 ## See also
 
