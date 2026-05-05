@@ -19,12 +19,22 @@ Silently read the following and build a picture of what already exists:
 
 1. **Root files:** `CLAUDE.md`, `README.md`, `.gitignore`.
 2. **Room folders:** list every top-level directory. For each, check whether a `CONTEXT.md` exists inside it.
-3. **AI harness files:**
+3. **AI harness detection:**
+   - Check for `.claude/` folder → indicates **Claude harness** (or mixed).
+   - Check for `.github/copilot-instructions.md` → indicates **Copilot harness** (or mixed).
+   - If both exist, note the overlap and ask the user which harness to target before proceeding.
+   - If neither exists, ask the user which harness to set up.
+4. **AI harness files (Claude harness):**
    - `.claude/agents/` — list files present vs. the template agents (`powershell-reviewer.md`, `terraform-reviewer.md`).
    - `.claude/skills/` — list directories present vs. the template skills (`planning-docs/`).
    - `.claude/settings.json` — note which `allow` / `deny` entries are present vs. the template baseline.
-4. **Planning templates:** check whether `planning/templates/` exists and contains `adr-template.md`, `spec-template.md`, `adr-example.md`, `spec-example.md`.
-5. **Runbooks:** check whether `runbooks/CONTEXT.md` exists.
+5. **AI harness files (Copilot harness):**
+   - `.github/copilot-instructions.md` — present or missing.
+   - `.github/instructions/powershell-reviewer.instructions.md` — present or missing.
+   - `.github/instructions/terraform-reviewer.instructions.md` — present or missing.
+   - `.github/prompts/planning-docs.prompt.md` — present or missing.
+6. **Planning templates:** check whether `planning/templates/` exists and contains `adr-template.md`, `spec-template.md`, `adr-example.md`, `spec-example.md`.
+7. **Runbooks:** check whether `runbooks/CONTEXT.md` exists.
 
 Do **not** make any changes during this step.
 
@@ -38,13 +48,22 @@ Present a single message with:
    | Item | Status | Proposed action |
    |------|--------|-----------------|
    | `CLAUDE.md` | present / partial / missing | merge sections / create / none |
+   | **Claude harness** | | |
    | `.claude/agents/powershell-reviewer.md` | present / missing | copy / none |
    | `.claude/agents/terraform-reviewer.md` | present / missing | copy / none |
    | `.claude/skills/planning-docs/` | present / missing | copy / none |
    | `.claude/settings.json` — allow entries | N of M present | merge missing / none |
+   | **Copilot harness** | | |
+   | `.github/copilot-instructions.md` | present / missing | create / none |
+   | `.github/instructions/powershell-reviewer.instructions.md` | present / missing | copy / none |
+   | `.github/instructions/terraform-reviewer.instructions.md` | present / missing | copy / none |
+   | `.github/prompts/planning-docs.prompt.md` | present / missing | copy / none |
+   | **Shared** | | |
    | `planning/templates/` | present / missing | copy templates / none |
    | `runbooks/CONTEXT.md` | present / missing | copy / none |
    | `<room>/CONTEXT.md` | present / missing (one row per room) | create / none |
+
+   Show only the rows relevant to the detected harness (skip the other harness's rows unless both exist).
 
 3. **CLAUDE.md detail** — if `CLAUDE.md` is present, list which of the template's sections are missing (Skills table, Subagents table, Task routing table, Naming, Rules, Avoid, etc.). Propose to append only the missing sections.
 4. **Questions** — if anything is ambiguous (e.g. the project has no `CLAUDE.md` at all and you need project name / one-liner / owner to create one), ask those questions here. Otherwise, skip.
@@ -55,7 +74,9 @@ Wait for me to accept, edit, or skip individual items before doing anything.
 
 Once I confirm the proposal, apply only the approved items in this order:
 
-### 3a — AI harness: agents and skills
+### 3a — AI harness: agents, skills, and instructions
+
+**Claude harness:**
 
 Copy missing agent files from `_template`'s known locations into `.claude/agents/` (create the folder if it doesn't exist):
 
@@ -68,7 +89,22 @@ Copy the missing skill directory into `.claude/skills/`:
 
 The `planning-docs` skill references template files. If this project does not have `_template/` (i.e. it was never a fresh copy of this template), update the links in the **Source files** section at the bottom of `SKILL.md` — the lines that look like `[_template/skeleton/planning/templates/adr-template.md](../../../_template/skeleton/planning/templates/adr-template.md)` — to point to `planning/templates/` instead (e.g. `[planning/templates/adr-template.md](../../../planning/templates/adr-template.md)`).
 
+**Copilot harness:**
+
+Copy missing instruction files into `.github/instructions/` (create the folder if it doesn't exist). Read each from `_template/skeleton/.github/instructions/` in this repo and write verbatim:
+
+- `powershell-reviewer.instructions.md`
+- `terraform-reviewer.instructions.md`
+
+Copy the missing prompt file into `.github/prompts/` (create the folder if it doesn't exist). Read from `_template/skeleton/.github/prompts/` in this repo and write verbatim:
+
+- `planning-docs.prompt.md`
+
+If `.github/copilot-instructions.md` is missing, note this in the gap report and ask the user if they want to create it. If yes, ask for project name, one-liner, and owner, then generate it using `_template/skeleton/.github/copilot-instructions.md.template` as the base (or the structure from Step 3e below if `_template/` is absent).
+
 ### 3b — AI harness: settings
+
+**Claude harness:**
 
 If `.claude/settings.json` is missing, create it with the full baseline content:
 
@@ -108,6 +144,26 @@ If `.claude/settings.json` is missing, create it with the full baseline content:
 If `.claude/settings.json` already exists, merge only the missing `allow` and `deny` entries into the existing JSON — do not remove any entries that are already there.
 
 Ensure `.claude/settings.local.json` is listed in `.gitignore`. If it's not, append two lines: first `# Claude Code CLI local state` and then `.claude/settings.local.json`. Place them below the `=== STACK-SPECIFIC ===` marker if that marker is present, otherwise at the end of the file.
+
+**Copilot harness:**
+
+Check whether `.vscode/settings.json` exists and contains a `chat.tools.terminal.autoApprove` key. If it's missing, create `.vscode/settings.json` with the baseline conservative allow-list:
+
+```json
+{
+  "chat.tools.terminal.autoApprove": {
+    "/^git\\s+(status|diff|log|show|branch|remote(\\s+-v)?|rev-parse|config\\s+--get)\\b/": true,
+    "/^Get-ChildItem\\b/": true,
+    "/^ls\\b/": true,
+    "/^dir\\b/": true,
+    "/^pwsh\\s+--version\\b/": true,
+    "/^node\\s+--version\\b/": true,
+    "/^python\\s+(--version|-V)\\b/": true
+  }
+}
+```
+
+If `.vscode/settings.json` already exists, merge only the missing regex entries under `chat.tools.terminal.autoApprove` — do not remove entries that are already there.
 
 ### 3c — Planning templates
 
@@ -172,7 +228,9 @@ Operational procedures — how to deploy, recover, restart, or troubleshoot. One
 - Failure modes are listed, not glossed over.
 ```
 
-### 3e — CLAUDE.md
+### 3e — Instructions file (CLAUDE.md or .github/copilot-instructions.md)
+
+**Claude harness — CLAUDE.md:**
 
 **If `CLAUDE.md` is missing entirely:**
 
@@ -181,13 +239,13 @@ Ask me for:
 2. One-liner
 3. Owner
 
-Then generate a minimal `CLAUDE.md` using the structure from `_template/skeleton/CLAUDE.md.template` (read it from this repo if it exists; otherwise use the section headings listed in Step 3e under "missing sections" below as a baseline). Populate only the sections where you have real information. Use `_TBD_` for anything you can't infer. Do not invent commands, rooms, or avoid-list items — leave those sections as examples for the user to fill in.
+Then generate a minimal `CLAUDE.md` using the structure from `_template/skeleton/CLAUDE.md.template` (read it from this repo if it exists; otherwise use the section headings listed below as a baseline). Populate only the sections where you have real information. Use `_TBD_` for anything you can't infer. Do not invent commands, rooms, or avoid-list items — leave those sections as examples for the user to fill in.
 
 **If `CLAUDE.md` is present but missing sections:**
 
 Append only the missing sections from the list below at the end of the file. Don't restructure or rewrite existing content.
 
-Missing-section templates to append:
+Missing-section templates to append (Claude):
 
 ```markdown
 ## Skills (`.claude/skills/`)
@@ -203,6 +261,57 @@ Missing-section templates to append:
 | `powershell-reviewer` | Review of `.ps1` / `.psm1` / `.psd1` files |
 | `terraform-reviewer` | Review of `.tf` / `.tfvars` / `.hcl` files |
 | `Explore` (built-in, Claude Code CLI only) | Read-only codebase Q&A |
+```
+
+```markdown
+## Naming
+Pattern: `description_status.extension`. Markdown/HTML use kebab-case. Code uses language idiom (PowerShell `Verb-Noun.ps1`, Python `snake_case.py`).
+```
+
+```markdown
+## Rules
+- Plain language. Ask before assuming. Say so when unsure.
+- Prefer editing existing files. Don't create docs to summarize work — say it in chat.
+- Verify before declaring done. Run the actual command or test.
+- No credentials, tenant/subscription/account IDs, or hostnames in source. Parameterize.
+- Don't push commits unless asked. Run `git status` first and confirm the remote + target branch.
+- ASCII only in `.ps1` / `.psm1` / `.psd1`.
+```
+
+**Copilot harness — .github/copilot-instructions.md:**
+
+**If `.github/copilot-instructions.md` is missing entirely:**
+
+Ask me for:
+1. Project name
+2. One-liner
+3. Owner
+
+Then generate a minimal `.github/copilot-instructions.md` using the structure from `_template/skeleton/.github/copilot-instructions.md.template` (read it from this repo if it exists; otherwise use the same section headings but replace the Skills/Subagents sections with Instructions/Prompts sections as shown in the template). Populate only the sections where you have real information. Use `_TBD_` for anything you can't infer.
+
+**If `.github/copilot-instructions.md` is present but missing sections:**
+
+Append only the missing sections at the end of the file. Don't restructure or rewrite existing content.
+
+Missing-section templates to append (Copilot):
+
+```markdown
+## Instructions (`.github/instructions/`)
+Applied automatically by Copilot when the file pattern matches. No explicit invocation needed.
+
+| File | Applied to |
+|------|-----------|
+| `powershell-reviewer.instructions.md` | `**/*.ps1`, `**/*.psm1`, `**/*.psd1` |
+| `terraform-reviewer.instructions.md` | `**/*.tf`, `**/*.tfvars`, `**/*.hcl` |
+```
+
+```markdown
+## Prompts (`.github/prompts/`)
+Reusable prompts — invoke with `/` in Copilot chat (e.g. `/planning-docs`).
+
+| Prompt | When to use |
+|--------|-------------|
+| `planning-docs` | Authoring or reviewing ADRs and technical specs |
 ```
 
 ```markdown

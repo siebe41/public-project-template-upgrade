@@ -12,11 +12,17 @@ If you are reading this in a freshly copied template (before INIT runs), help th
 project_template/
 ├── CLAUDE.md                       # this file (replaced by the project's CLAUDE.md after INIT runs)
 ├── _template/                      # bootstrap files (deleted after INIT runs)
+│   ├── skeleton/
+│   │   ├── CLAUDE.md.template      # Claude harness instructions file
+│   │   └── .github/
+│   │       ├── copilot-instructions.md.template  # Copilot harness instructions file
+│   │       ├── instructions/       # Copilot scoped instruction files
+│   │       └── prompts/            # Copilot reusable prompt files
 ├── runbooks/                       # starter operational procedures (kept)
 ├── reference/                      # starter examples and vendor docs (kept)
 └── .claude/
-    ├── skills/                     # starter skills (kept)
-    └── agents/                     # starter subagents (kept)
+    ├── skills/                     # starter skills (kept for Claude harness)
+    └── agents/                     # starter subagents (kept for Claude harness)
 ```
 
 ## Token rules for this template
@@ -29,7 +35,7 @@ Pattern: `description_status.extension`. Markdown and HTML use `kebab-case`.
 
 ## Rules
 - ASCII only in `.ps1` / `.psm1` / `.psd1`. PS 5.1 in CI mangles non-ASCII.
-- Customization files (skills, agents) go in `.claude/agents/` and `.claude/skills/` - read by both Claude Code CLI and Copilot agent mode. Use Claude-format frontmatter (`name`, `description`, `tools`, optional `disallowedTools`) for cross-harness compatibility.
+- INIT asks for the AI harness (Claude or Copilot). Claude creates `.claude/`; Copilot creates `.github/` with `copilot-instructions.md`, `instructions/`, and `prompts/`.
 - When this repo is opened directly as the template, **never `git add` / `git commit` / `git push`** - the maintainer pushes template changes manually. Once copied into a new project, normal git rules apply.
 - `reference/` is read-only examples. Never edit files there to fix a bug - rebuild cleanly in a project context.
 

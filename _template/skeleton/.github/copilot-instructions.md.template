@@ -9,7 +9,7 @@
 {{SUCCESS_CRITERIA}}
 
 ## Stack
-Claude Code CLI is the primary harness. GitHub Copilot agent mode in VS Code can also be used — both read `CLAUDE.md`. Per-harness config: `.claude/settings.json` (Claude hooks/permissions) and `.vscode/settings.json` (Copilot terminal allow-list). PowerShell default shell (CI may run PS 5.1; local is PS 7). For capability details (skills, MCP, memory, subagents), check [code.claude.com/docs](https://code.claude.com/docs/) — always current.
+GitHub Copilot agent mode in VS Code is the primary harness. Per-harness config lives in `.vscode/settings.json` (terminal auto-approve list), `.github/instructions/` (scoped instructions applied automatically by file pattern), and `.github/prompts/` (reusable slash-command prompts). For capability details, check [code.visualstudio.com/docs/copilot](https://code.visualstudio.com/docs/copilot) — always current. PowerShell default shell (CI may run PS 5.1; local is PS 7).
 
 ## Tech stack (this project)
 {{TECH_STACK}}
@@ -17,25 +17,24 @@ Claude Code CLI is the primary harness. GitHub Copilot agent mode in VS Code can
 ## Folder structure
 ```
 {{PROJECT_SLUG}}/
-├── CLAUDE.md                        # this file - always loaded
 ├── README.md
 ├── {{PROJECT_SLUG}}.code-workspace
+├── .github/instructions/            # scoped instructions auto-applied by Copilot
+├── .github/prompts/                 # reusable prompts (invoke with / in Copilot chat)
 ├── planning/                        # specs, ADRs, diagrams (always present)
 ├── runbooks/                        # operational procedures
 ├── reference/                       # examples, snippets, vendor docs
-├── .claude/skills/
-├── .claude/agents/
 {{ROOMS_TREE}}
 ```
 
 ## Task routing
 | Your task | Go here | Also load |
 |-----------|---------|-----------|
-| Find something or get oriented in the codebase | (codebase-wide) | Invoke the `Explore` subagent (Claude Code CLI) or ask in chat (Copilot) |
-| Design a system, write a spec or ADR | `planning/CONTEXT.md` | `planning/templates/` for the right template |
+| Find something or get oriented in the codebase | (codebase-wide) | Ask in Copilot chat |
+| Design a system, write a spec or ADR | `planning/CONTEXT.md` | `planning/templates/` for the right template; invoke `planning-docs` prompt |
 {{ROUTING_ROWS}}
 | Run an operational procedure | `runbooks/CONTEXT.md` | The specific runbook only |
-| Look up an AI capability or limit | (external docs) | Copilot: [code.visualstudio.com/docs/copilot](https://code.visualstudio.com/docs/copilot); Claude Code CLI: [code.claude.com/docs](https://code.claude.com/docs/) |
+| Look up a Copilot capability or limit | (external docs) | [code.visualstudio.com/docs/copilot](https://code.visualstudio.com/docs/copilot) |
 
 Each room has its own `CONTEXT.md` with the rules for that room. Load it when working in that room; skip the others.
 
@@ -59,17 +58,20 @@ Pattern: `description_status.extension`. Markdown/HTML use kebab-case. Date-stam
 ## Avoid
 {{AVOID}}
 
-## Skills (`.claude/skills/`)
-| Skill | When invoked |
-|-------|--------------|
-{{PROJECT_SKILLS_TABLE}}
+## Instructions (`.github/instructions/`)
+Applied automatically by Copilot when the file pattern matches. No explicit invocation needed.
 
-## Subagents (`.claude/agents/`)
-| Agent | When invoked |
-|-------|--------------|
-| `powershell-reviewer` | Review of `.ps1` / `.psm1` / `.psd1` files |
-| `terraform-reviewer` | Review of `.tf` / `.tfvars` / `.hcl` files |
-| `Explore` (built-in, Claude Code CLI only) | Read-only codebase Q&A; supports `quick` / `medium` / `thorough` |
+| File | Applied to |
+|------|-----------|
+| `powershell-reviewer.instructions.md` | `**/*.ps1`, `**/*.psm1`, `**/*.psd1` |
+| `terraform-reviewer.instructions.md` | `**/*.tf`, `**/*.tfvars`, `**/*.hcl` |
+
+## Prompts (`.github/prompts/`)
+Reusable prompts — invoke with `/` in Copilot chat (e.g. `/planning-docs`).
+
+| Prompt | When to use |
+|--------|-------------|
+| `planning-docs` | Authoring or reviewing ADRs and technical specs |
 
 ## Owner
 {{OWNER}}
